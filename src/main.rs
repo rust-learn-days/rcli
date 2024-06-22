@@ -12,8 +12,5 @@ fn main() {
                 eprintln!("Error: {}", e);
             }
         }
-        Subcommand::Json2Csv(_) => {
-            println!("Json2Csv");
-        }
     }
 }

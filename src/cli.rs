@@ -18,8 +18,6 @@ pub struct Opts {
 pub enum Subcommand {
     #[clap(name = "csv2json", about = "Convert CSV to JSON")]
     Csv2Json(Csv2JsonOpts),
-    #[clap(name = "json2csv", about = "Convert JSON to CSV")]
-    Json2Csv(Json2CsvOpts),
 }
 
 #[derive(Parser, Debug)]
