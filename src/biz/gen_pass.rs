@@ -1,6 +1,8 @@
 use anyhow::Error;
+use colored::Colorize;
 use rand::prelude::SliceRandom;
 use rand::Rng;
+use zxcvbn::zxcvbn;
 
 const UPPER_CHARS: &[u8] = b"ABCDEFGHJKLMNOPQRSTUVWXYZ";
 const LOWER_CHARS: &[u8] = b"abcdefghijkmnpqrstuvwxyz";
@@ -38,5 +40,12 @@ pub fn gen_pass(
         pass.push(chars[idx] as char);
     }
     pass.shuffle(&mut rng);
-    Ok(pass.iter().collect())
+    let pass: String = pass.iter().collect();
+    let sore = zxcvbn(&pass, &[])?;
+    println!(
+        "{}: {}",
+        "Password Score".blue(),
+        format!("{}", sore.score()).blue()
+    );
+    Ok(pass)
 }
