@@ -26,10 +26,10 @@ fn main() {
         Subcommand::GenPass(gen_opts) => {
             let pass = rcli::gen_pass(
                 gen_opts.length,
-                gen_opts.upper,
-                gen_opts.lower,
-                gen_opts.number,
-                gen_opts.symbol,
+                !gen_opts.no_upper,
+                !gen_opts.no_lower,
+                !gen_opts.no_number,
+                !gen_opts.no_symbol,
             );
             match pass {
                 Ok(pass) => {
