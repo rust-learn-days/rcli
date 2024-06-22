@@ -1,29 +1,46 @@
 use std::fs;
 
-use serde::{Deserialize, Serialize};
+use anyhow::Error;
+use colored::Colorize;
+use serde_json::Value;
 
-use crate::Csv2JsonOpts;
+use crate::{Csv2FileOpts, FileFormat};
 
-#[derive(Debug, Serialize, Deserialize)]
-#[serde(rename_all = "PascalCase")]
-pub struct Player {
-    name: String,
-    position: String,
-    #[serde(rename = "DOB")]
-    dob: String,
-    nationality: String,
-    #[serde(rename = "Kit Number")]
-    kit: u8,
-}
-
-pub fn csv2json(opts: Csv2JsonOpts) -> anyhow::Result<()> {
+pub fn csv2file(opts: Csv2FileOpts) -> Result<String, Error> {
+    let output = match opts.output {
+        Some(output) => output,
+        None => {
+            let output = format!("output.{}", opts.format);
+            output
+        }
+    };
+    println!("{} {}", "Output file: ".blue(), output.blue());
     let mut rdr = csv::Reader::from_path(opts.input)?;
     let mut ret = Vec::with_capacity(128);
-    for result in rdr.deserialize() {
-        let player: Player = result?;
+    let headers = rdr.headers()?.clone();
+
+    for result in rdr.records() {
+        let record = result?;
+        // header.iter()  使用headers的迭代器
+        // record.iter()  使用record的迭代器
+        // zip()  将两个迭代器合并成一个元组
+        // collect::<Value>()  将元组转换为Value类型
+        let player = headers.iter().zip(record.iter()).collect::<Value>();
         ret.push(player);
     }
-    let json = serde_json::to_string_pretty(&ret)?;
-    fs::write(opts.output, json)?;
-    Ok(())
+
+    let output_str: String = match opts.format {
+        FileFormat::Json => {
+            let json = serde_json::to_string_pretty(&ret)?;
+            fs::write(output, &json)?;
+            json.clone()
+        }
+        FileFormat::Yaml => {
+            let yaml = serde_yaml::to_string(&ret)?;
+            fs::write(output, &yaml)?;
+            yaml.clone()
+        }
+    };
+
+    Ok(output_str)
 }
