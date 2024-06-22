@@ -32,50 +32,27 @@ cargo generate 是一个用于生成项目模板的工具。它可以使用已�
 cargo install cargo-generate
 ```
 
-在我们的课程中，新的项目会使用 `tyr-rust-bootcamp/template` 模版生成基本的代码：
+在我们的课程中，新的项目会使用 `rust-learn-days/template` 模版生成基本的代码：
 
 ```bash
 cargo generate tyr-rust-bootcamp/template
 ```
 
-### 安装 pre-commit
+### 安装 just
 
-pre-commit 是一个代码检查工具，可以在提交代码前进行代码检查。
+just 是一个类似Makefile 的工具。
 
 ```bash
-brew install pre-commit
+brew install just
 ```
 
-安装成功后运行 `pre-commit install` 即可。
+安装成功后运行 `just init` 即可初始化环境。
 
-### 安装 Cargo deny
 
-Cargo deny 是一个 Cargo 插件，可以用于检查依赖的安全性。
+### 安装 tokei
 
-```bash
-cargo install --locked cargo-deny
-```
-
-### 安装 typos
-
-typos 是一个拼写检查工具。
+tokei 是一个代码统计工具。
 
 ```bash
-cargo install typos-cli
-```
-
-### 安装 git cliff
-
-git cliff 是一个生成 changelog 的工具。
-
-```bash
-cargo install git-cliff
-```
-
-### 安装 cargo nextest
-
-cargo nextest 是一个 Rust 增强测试工具。
-
-```bash
-cargo install cargo-nextest --locked
+brew install tokei
 ```

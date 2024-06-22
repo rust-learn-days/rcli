@@ -12,7 +12,6 @@ init:
 	cargo install cross --git https://github.com/cross-rs/cross
 	pre-commit install
 	sed -i '' 's#rust-learn-days/template#rust-learn-days/rcli#g' cliff.toml
-
 	brew install duckdb # select * from read_csv('assets/juventus.csv',auto_detect=true);
 
 
