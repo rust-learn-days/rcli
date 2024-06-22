@@ -6,3 +6,4 @@ edition = "2021"
 description = "rcli, a rusty-hermit application"
 repository = "https://github.com/rust-learn-days/rcli"
 [dependencies]
+clap = { version = "4.5.7", features = ["derive"] }
