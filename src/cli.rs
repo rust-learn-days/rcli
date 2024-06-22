@@ -19,8 +19,10 @@ pub struct Opts {
 
 #[derive(Parser, Debug)]
 pub enum Subcommand {
-    #[clap(name = "csv2file", about = "Convert CSV to File")]
-    Csv2File(Csv2FileOpts),
+    #[clap(name = "csv", about = "Convert CSV to File")]
+    Csv(CsvOpts),
+    #[clap(name = "genpass", about = "Generate password for random")]
+    GenPass(GenPassOpts),
 }
 
 #[derive(Debug, Clone, Copy)]
@@ -30,7 +32,7 @@ pub enum FileFormat {
 }
 
 #[derive(Parser, Debug)]
-pub struct Csv2FileOpts {
+pub struct CsvOpts {
     #[arg(short, long, value_parser = verify_file_exists)]
     pub input: String,
     #[arg(short, long)]
@@ -41,6 +43,20 @@ pub struct Csv2FileOpts {
     pub delimiter: char,
     #[arg(short = 'r', long = "show header", default_value_t = true)]
     pub header: bool,
+}
+
+#[derive(Parser, Debug)]
+pub struct GenPassOpts {
+    #[arg(short, long, default_value_t = 16)]
+    pub length: u8,
+    #[arg(long, default_value_t = true)]
+    pub number: bool,
+    #[arg(long, default_value_t = true)]
+    pub upper: bool,
+    #[arg(long, default_value_t = true)]
+    pub lower: bool,
+    #[arg(long, default_value_t = true)]
+    pub symbol: bool,
 }
 
 fn verify_file_exists(path: &str) -> Result<String, String> {
@@ -80,12 +96,4 @@ impl fmt::Display for FileFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", Into::<&str>::into(*self))
     }
-}
-
-#[derive(Parser, Debug)]
-pub struct Json2CsvOpts {
-    #[arg(short, long = "Input JSON file")]
-    pub input: String,
-    #[arg(short, long = "Output CSV file")]
-    pub output: String,
 }

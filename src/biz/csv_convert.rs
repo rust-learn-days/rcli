@@ -4,9 +4,9 @@ use anyhow::Error;
 use colored::Colorize;
 use serde_json::Value;
 
-use crate::{Csv2FileOpts, FileFormat};
+use crate::{CsvOpts, FileFormat};
 
-pub fn csv2file(opts: Csv2FileOpts) -> Result<String, Error> {
+pub fn csv2file(opts: CsvOpts) -> Result<String, Error> {
     let output = match opts.output {
         Some(output) => output,
         None => {

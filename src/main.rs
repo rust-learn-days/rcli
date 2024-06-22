@@ -9,7 +9,7 @@ fn main() {
         println!("{} {:?}", "DEBUG".green(), opts);
     }
     match opts.cmd {
-        Subcommand::Csv2File(csv_opts) => {
+        Subcommand::Csv(csv_opts) => {
             println!("{} {}", "Convert CSV to JSON".blue(), "format: json".blue());
             match csv2file(csv_opts) {
                 Ok(output) => {
@@ -22,6 +22,9 @@ fn main() {
                     eprintln!("{} {}", "Error: {}".red(), e);
                 }
             }
+        }
+        Subcommand::GenPass(gen_opts) => {
+            println!("{} {:?}", "Options".blue(), gen_opts);
         }
     }
 }
