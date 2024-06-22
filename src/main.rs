@@ -24,7 +24,21 @@ fn main() {
             }
         }
         Subcommand::GenPass(gen_opts) => {
-            println!("{} {:?}", "Options".blue(), gen_opts);
+            let pass = rcli::gen_pass(
+                gen_opts.length,
+                gen_opts.upper,
+                gen_opts.lower,
+                gen_opts.number,
+                gen_opts.symbol,
+            );
+            match pass {
+                Ok(pass) => {
+                    println!("{} {}", "Generated Password: ".blue(), pass.blue());
+                }
+                Err(e) => {
+                    eprintln!("{} {}", "Error: ".red(), e);
+                }
+            }
         }
     }
 }
