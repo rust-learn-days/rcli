@@ -13,6 +13,8 @@ init:
 	pre-commit install
 	sed -i '' 's#rust-learn-days/template#rust-learn-days/rcli#g' cliff.toml
 
+	brew install duckdb # select * from read_csv('assets/juventus.csv',auto_detect=true);
+
 
 build:
     rustup target add ${target}
@@ -38,3 +40,6 @@ build-release:
 
 changelog:
     git-cliff --config cliff.toml > CHANGELOG.md
+
+line:
+    tokei .
