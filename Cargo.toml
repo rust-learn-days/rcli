@@ -5,6 +5,7 @@ authors = ["cuisongliu <cuisongliu@qq.com>"]
 edition = "2021"
 description = "rcli, a rusty-hermit application"
 repository = "https://github.com/rust-learn-days/rcli"
+license-file = "LICENSE"
 [dependencies]
 anyhow = "1.0.86"
 clap = { version = "4.5.7", features = ["derive"] }
