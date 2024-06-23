@@ -3,28 +3,6 @@ use std::str::FromStr;
 
 use clap::Parser;
 
-#[derive(Parser, Debug)]
-#[command(name = "rcli", about, version, author, long_about = None)]
-pub struct Opts {
-    #[clap(subcommand)]
-    pub cmd: Subcommand,
-    #[arg(
-        short,
-        long,
-        default_value = "false",
-        long_help = "Print debug information"
-    )]
-    pub debug: bool,
-}
-
-#[derive(Parser, Debug)]
-pub enum Subcommand {
-    #[clap(name = "csv", about = "Convert CSV to File")]
-    Csv(CsvOpts),
-    #[clap(name = "genpass", about = "Generate password for random")]
-    GenPass(GenPassOpts),
-}
-
 #[derive(Debug, Clone, Copy)]
 pub enum FileFormat {
     Json,
@@ -43,20 +21,6 @@ pub struct CsvOpts {
     pub delimiter: char,
     #[arg(short = 'r', long = "show header", default_value_t = true)]
     pub header: bool,
-}
-
-#[derive(Parser, Debug)]
-pub struct GenPassOpts {
-    #[arg(short, long, default_value_t = 16)]
-    pub length: u8,
-    #[arg(long, default_value_t = false)]
-    pub no_number: bool,
-    #[arg(long, default_value_t = false)]
-    pub no_upper: bool,
-    #[arg(long, default_value_t = false)]
-    pub no_lower: bool,
-    #[arg(long, default_value_t = false)]
-    pub no_symbol: bool,
 }
 
 fn verify_file_exists(path: &str) -> Result<String, String> {
