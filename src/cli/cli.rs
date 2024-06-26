@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::{Base64Opts, CsvOpts, GenPassOpts};
+use crate::{Base64Opts, CsvOpts, GenPassOpts, TextOpts};
 
 #[derive(Parser, Debug)]
 #[command(name = "rcli", about, version, author, long_about = None)]
@@ -24,4 +24,6 @@ pub enum Subcommand {
     GenPass(GenPassOpts),
     #[clap(name = "base64", about = "Encode/Decode Base64")]
     Base64(Base64Opts),
+    #[clap(name = "text", about = "Convert text to file")]
+    Text(TextOpts),
 }

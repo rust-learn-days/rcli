@@ -1,8 +1,7 @@
-use std::io::Read;
-
 use base64::engine::general_purpose::{STANDARD, URL_SAFE, URL_SAFE_NO_PAD};
 use base64::prelude::*;
 
+use crate::utils::process_from_input;
 use crate::Format;
 
 pub fn encode(input: &str, format: Format) -> anyhow::Result<()> {
@@ -35,19 +34,6 @@ pub fn decode(input: &str, format: Format) -> anyhow::Result<()> {
     };
     println!("{}", String::from_utf8_lossy(&decoded));
     Ok(())
-}
-
-fn process_from_input(input: &str) -> Result<String, anyhow::Error> {
-    let mut reader: Box<dyn Read> = if input == "-" {
-        Box::new(std::io::stdin())
-    } else {
-        Box::new(std::fs::File::open(input)?)
-    };
-
-    let mut buffer = String::new();
-    reader.read_to_string(&mut buffer)?;
-    let str = buffer.trim();
-    Ok(String::from(str))
 }
 
 #[cfg(test)]

@@ -1,7 +1,7 @@
 use clap::Parser;
 use colored::Colorize;
 
-use rcli::{csv2file, encode, Base64Subcommand, Opts, Subcommand};
+use rcli::{csv2file, encode, Base64Subcommand, Opts, Subcommand, TextSubcommand};
 
 fn main() {
     let opts: Opts = Opts::parse();
@@ -50,6 +50,17 @@ fn main() {
                 if let Err(e) = rcli::decode(&decode_opts.input, decode_opts.format) {
                     eprintln!("{} {}", "Error: ".red(), e);
                 }
+            }
+        },
+        Subcommand::Text(text_opts) => match text_opts.cmd {
+            TextSubcommand::GenerateKey(generate_key_opts) => {
+                println!("generate_key_opts: {:?}", generate_key_opts)
+            }
+            TextSubcommand::Sign(sign_opts) => {
+                println!("sign_opts: {:?}", sign_opts)
+            }
+            TextSubcommand::Verify(verify_opts) => {
+                println!("verify_opts: {:?}", verify_opts)
             }
         },
     }

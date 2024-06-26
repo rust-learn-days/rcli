@@ -2,12 +2,14 @@ pub use b64::*;
 pub use cli::*;
 pub use csv::*;
 pub use gen_pass::*;
+pub use text::*;
 
 mod b64;
 #[allow(clippy::module_inception)]
 mod cli;
 mod csv;
 mod gen_pass;
+mod text;
 
 fn verify_file_exists(path: &str) -> Result<String, String> {
     if path == "-" || std::path::Path::new(path).exists() {
