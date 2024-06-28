@@ -3,25 +3,28 @@ use std::io::Read;
 use anyhow::{Error, Result};
 use base64::prelude::BASE64_URL_SAFE_NO_PAD;
 use base64::Engine;
+use blake3::KEY_LEN;
 use ed25519_dalek::{Signature, Signer, SigningKey, Verifier, VerifyingKey};
 
-use crate::{process_from_input, TextSignFormat};
+use crate::{gen_pass, TextSignFormat};
 
-trait TextSign {
+pub trait TextSign {
     fn sign(&self, read: &mut dyn Read) -> Result<Vec<u8>, Error>;
 }
 
-trait TextVerify {
-    fn verify(&self, read: impl Read, signature: Vec<u8>) -> Result<bool, Error>;
+pub trait TextVerify {
+    fn verify(&self, read: &mut dyn Read, signature: Vec<u8>) -> Result<bool, Error>;
 }
 
-struct Blake3 {}
+pub struct Blake3 {
+    key: [u8; KEY_LEN],
+}
 
-struct Ed25519Sign {
+pub struct Ed25519Sign {
     key: SigningKey,
 }
 
-struct Ed25519Verify {
+pub struct Ed25519Verify {
     key: VerifyingKey,
 }
 
@@ -30,19 +33,38 @@ impl TextSign for Blake3 {
         let mut buffer = String::new();
         read.read_to_string(&mut buffer)?;
         let str = buffer.trim();
-        let sign = blake3::hash(str.as_bytes()).as_bytes().to_vec();
+        let sign = blake3::keyed_hash(&self.key, str.as_bytes())
+            .as_bytes()
+            .to_vec();
         Ok(sign)
     }
 }
 
 impl TextVerify for Blake3 {
-    fn verify(&self, mut read: impl Read, signature: Vec<u8>) -> Result<bool, Error> {
-        let mut buffer = String::new();
-        read.read_to_string(&mut buffer)?;
-        let str = buffer.trim();
-        let sign = blake3::hash(str.as_bytes()).as_bytes().to_vec();
+    fn verify(&self, reader: &mut dyn Read, signature: Vec<u8>) -> Result<bool, Error> {
+        let mut buf = Vec::new();
+        reader.read_to_end(&mut buf)?;
+        let sign = blake3::keyed_hash(&self.key, &buf);
         let signature = signature.as_slice();
-        Ok(signature == sign)
+        Ok(signature == sign.as_bytes())
+    }
+}
+
+impl Blake3 {
+    pub fn try_new(key: impl AsRef<[u8]>) -> Result<Self> {
+        let key = key.as_ref();
+        // convert &[u8] to &[u8; 32]
+        let key = (&key[..32]).try_into()?;
+        Ok(Self::new(key))
+    }
+
+    pub fn new(key: [u8; 32]) -> Self {
+        Self { key }
+    }
+    #[allow(dead_code)]
+    fn generate_key() -> Result<Vec<u8>> {
+        let key = gen_pass(32, true, true, true, true)?;
+        Ok(key.as_bytes().to_vec())
     }
 }
 
@@ -57,7 +79,7 @@ impl TextSign for Ed25519Sign {
 }
 
 impl TextVerify for Ed25519Verify {
-    fn verify(&self, mut _read: impl Read, signature: Vec<u8>) -> Result<bool, Error> {
+    fn verify(&self, _read: &mut dyn Read, signature: Vec<u8>) -> Result<bool, Error> {
         let mut buffer = String::new();
         _read.read_to_string(&mut buffer)?;
         let str = buffer.trim();
@@ -67,69 +89,57 @@ impl TextVerify for Ed25519Verify {
     }
 }
 
-pub fn sign(input: &str, key: &str, format: TextSignFormat) -> anyhow::Result<()> {
-    let input_str = match process_from_input(input) {
-        Ok(s) => s,
-        Err(e) => return Err(e),
-    };
-
-    let key_str = match process_from_input(key) {
-        Ok(s) => s,
-        Err(e) => return Err(e),
-    };
-
-    let signature = match format {
-        TextSignFormat::Blake3 => {
-            let blake3 = Blake3 {};
-            blake3.sign(&mut input_str.as_bytes())?
-        }
+pub fn sign(input: &mut dyn Read, key: &str, format: TextSignFormat) -> Result<String> {
+    let signature: Box<dyn TextSign> = match format {
+        TextSignFormat::Blake3 => Box::new(Blake3::try_new(key)?),
         TextSignFormat::Ed25519 => {
-            let key = SigningKey::from_bytes(key_str.as_bytes().try_into()?);
-            let ed25519 = Ed25519Sign { key };
-            ed25519.sign(&mut input_str.as_bytes())?
+            todo!()
         }
     };
-    let signature = BASE64_URL_SAFE_NO_PAD.encode(signature);
-    println!("{}", signature);
-    Ok(())
+    let signature = signature.sign(input)?;
+    let signature_base64 = BASE64_URL_SAFE_NO_PAD.encode(signature);
+    Ok(signature_base64)
 }
 
 pub fn verify(
-    input: &str,
+    input: &mut dyn Read,
     key: &str,
     format: TextSignFormat,
     signature: &str,
-) -> anyhow::Result<()> {
-    let input_str = match process_from_input(input) {
-        Ok(s) => s,
-        Err(e) => return Err(e),
-    };
-
-    let key_str = match process_from_input(key) {
-        Ok(s) => s,
-        Err(e) => return Err(e),
-    };
-
+) -> Result<bool> {
     let signature = BASE64_URL_SAFE_NO_PAD.decode(signature.as_bytes())?;
-
-    let signature = match format {
-        TextSignFormat::Blake3 => {
-            let blake3 = Blake3 {};
-            blake3.verify(&mut input_str.as_bytes(), signature)?
-        }
+    let verifier: Box<dyn TextVerify> = match format {
+        TextSignFormat::Blake3 => Box::new(Blake3::try_new(key)?),
         TextSignFormat::Ed25519 => {
-            let key = match VerifyingKey::from_bytes(key_str.as_bytes().try_into()?) {
-                Ok(k) => k,
-                Err(e) => return Err(e.into()),
-            };
-            let ed25519 = Ed25519Verify { key };
-            ed25519.verify(&mut input_str.as_bytes(), signature)?
+            todo!()
         }
     };
-    if signature {
-        println!("Signature is valid");
-    } else {
-        println!("Signature is invalid");
+    let signature = verifier.verify(input, signature)?;
+    Ok(signature)
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_sign() {
+        let mut input = "hello".as_bytes();
+        let key = gen_pass(32, true, true, true, true).unwrap();
+        let format = TextSignFormat::Blake3;
+        let out = match sign(&mut input, &key, format) {
+            Ok(sign) => {
+                println!("Sign: {}", sign);
+                Ok(sign)
+            }
+            Err(e) => {
+                eprintln!("Error: {}", e);
+                Err(e)
+            }
+        };
+        let mut new_input = "hello".as_bytes();
+        let ok = verify(&mut new_input, &key, format, out.unwrap().as_str());
+        println!("Verify: {:?}", ok);
+        assert!(ok.is_ok());
     }
-    Ok(())
 }
