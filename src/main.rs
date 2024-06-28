@@ -1,7 +1,12 @@
+use std::fs;
+
 use clap::Parser;
 use colored::Colorize;
 
-use rcli::{csv2file, encode, Base64Subcommand, Opts, Subcommand, TextSubcommand};
+use rcli::{
+    csv2file, encode, generate_key, process_from_input, Base64Subcommand, Opts, Subcommand,
+    TextSubcommand,
+};
 
 fn main() {
     let opts: Opts = Opts::parse();
@@ -54,13 +59,44 @@ fn main() {
         },
         Subcommand::Text(text_opts) => match text_opts.cmd {
             TextSubcommand::GenerateKey(generate_key_opts) => {
-                println!("generate_key_opts: {:?}", generate_key_opts)
+                match generate_key(generate_key_opts.format) {
+                    Ok(key) => {
+                        println!("Generated Key: {}", String::from_utf8(key.clone()).unwrap());
+                        fs::write(generate_key_opts.output, key.as_slice()).unwrap();
+                    }
+                    Err(e) => {
+                        eprintln!("Error: {}", e);
+                    }
+                }
             }
             TextSubcommand::Sign(_sign_opts) => {
-                todo!("Sign")
+                let input: String = process_from_input(&_sign_opts.input).unwrap();
+                let key = process_from_input(&_sign_opts.key).unwrap();
+                match rcli::sign(&mut input.as_bytes(), key.as_str(), _sign_opts.format) {
+                    Ok(signature) => {
+                        println!("{} {}", "Signature: ".blue(), signature.blue());
+                    }
+                    Err(e) => {
+                        eprintln!("{} {}", "Error: ".red(), e);
+                    }
+                }
             }
             TextSubcommand::Verify(_verify_opts) => {
-                todo!("Verify")
+                let input: String = process_from_input(&_verify_opts.input).unwrap();
+                let key = process_from_input(&_verify_opts.key).unwrap();
+                match rcli::verify(
+                    &mut input.as_bytes(),
+                    key.as_str(),
+                    _verify_opts.format,
+                    &_verify_opts.signature,
+                ) {
+                    Ok(ok) => {
+                        println!("{} {:?}", "Verify: ".blue(), ok);
+                    }
+                    Err(e) => {
+                        eprintln!("{} {}", "Error: ".red(), e);
+                    }
+                }
             }
         },
     }

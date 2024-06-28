@@ -118,6 +118,15 @@ pub fn verify(
     Ok(signature)
 }
 
+pub fn generate_key(format: TextSignFormat) -> Result<Vec<u8>> {
+    match format {
+        TextSignFormat::Blake3 => Blake3::generate_key(),
+        TextSignFormat::Ed25519 => {
+            todo!()
+        }
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;

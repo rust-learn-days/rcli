@@ -10,7 +10,7 @@ pub struct TextOpts {
 
 #[derive(Parser, Debug)]
 pub enum TextSubcommand {
-    #[clap(name = "generate-key", about = "Generate key")]
+    #[clap(name = "gen-key", about = "Generate key")]
     GenerateKey(GenerateKeyOpts),
     #[clap(name = "sign", about = "Sign text")]
     Sign(SignOpts),
@@ -42,8 +42,10 @@ pub struct VerifyOpts {
 
 #[derive(Parser, Debug)]
 pub struct GenerateKeyOpts {
-    #[arg(short, long)]
+    #[arg(short, long, default_value = "assets/blake3.txt")]
     pub output: String,
+    #[arg(long, default_value = "blake3", value_parser = parse_format)]
+    pub format: TextSignFormat,
 }
 
 #[derive(Debug, Clone, Copy)]
