@@ -8,14 +8,14 @@ use crate::{
     decrypt_message, encrypt_message, generate_encrypt_key, get_decrypt_key, process_from_input,
 };
 
-use super::verify_file_exists;
+use super::verify_file;
 
 #[derive(Parser, Debug)]
 pub struct EncryptOpts {
-    #[arg(short, long, value_parser = verify_file_exists, default_value = "-")]
+    #[arg(short, long, value_parser = verify_file, default_value = "-")]
     pub input: String,
     #[arg(
-        short, long, value_parser = verify_file_exists, default_value = "assets/encrypted-key.txt"
+        short, long, value_parser = verify_file, default_value = "assets/encrypted-key.txt"
     )]
     pub key: String,
     #[arg(short, long, default_value = "assets/encrypted.txt")]
@@ -43,10 +43,10 @@ impl EncryptOpts {
 
 #[derive(Parser, Debug)]
 pub struct DecryptOpts {
-    #[arg(short, long, value_parser = verify_file_exists, default_value = "assets/encrypted.txt")]
+    #[arg(short, long, value_parser = verify_file, default_value = "assets/encrypted.txt")]
     pub input: String,
     #[arg(
-        short, long, value_parser = verify_file_exists, default_value = "assets/encrypted-key.txt"
+        short, long, value_parser = verify_file, default_value = "assets/encrypted-key.txt"
     )]
     pub key: String,
     #[arg(long, default_value = "chacha20-poly1305", value_parser = parse_format)]

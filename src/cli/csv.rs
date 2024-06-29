@@ -1,4 +1,4 @@
-use super::verify_file_exists;
+use super::verify_file;
 use crate::csv2file;
 use clap::Parser;
 use colored::Colorize;
@@ -13,7 +13,7 @@ pub enum FileFormat {
 
 #[derive(Parser, Debug)]
 pub struct CsvOpts {
-    #[arg(short, long, value_parser = verify_file_exists)]
+    #[arg(short, long, value_parser = verify_file)]
     pub input: String,
     #[arg(short, long)]
     pub output: Option<String>,

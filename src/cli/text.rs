@@ -6,7 +6,7 @@ use colored::Colorize;
 use crate::cli::text_encrypt::{DecryptOpts, EncryptOpts};
 use crate::{generate_key, process_from_input, EncryptKeyOpts};
 
-use super::verify_file_exists;
+use super::verify_file;
 
 #[derive(Parser, Debug)]
 pub struct TextOpts {
@@ -45,9 +45,9 @@ pub enum TextSubcommand {
 
 #[derive(Parser, Debug)]
 pub struct SignOpts {
-    #[arg(short, long, value_parser = verify_file_exists, default_value = "-")]
+    #[arg(short, long, value_parser = verify_file, default_value = "-")]
     pub input: String,
-    #[arg(short, long, value_parser = verify_file_exists)]
+    #[arg(short, long, value_parser = verify_file)]
     pub key: String,
     #[arg(long, default_value = "blake3", value_parser = parse_format)]
     pub format: TextSignFormat,
@@ -72,9 +72,9 @@ impl SignOpts {
 
 #[derive(Parser, Debug)]
 pub struct VerifyOpts {
-    #[arg(short, long, value_parser = verify_file_exists, default_value = "-")]
+    #[arg(short, long, value_parser = verify_file, default_value = "-")]
     pub input: String,
-    #[arg(short, long, value_parser = verify_file_exists)]
+    #[arg(short, long, value_parser = verify_file)]
     pub key: String,
     #[arg(long, default_value = "blake3", value_parser = parse_format)]
     pub format: TextSignFormat,

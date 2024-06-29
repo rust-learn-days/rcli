@@ -1,19 +1,12 @@
 use clap::Parser;
 
-use crate::{Base64Opts, CsvOpts, GenPassOpts, TextOpts};
+use crate::{Base64Opts, CsvOpts, GenPassOpts, HttpSubCommand, TextOpts};
 
 #[derive(Parser, Debug)]
 #[command(name = "rcli", about, version, author, long_about = None)]
 pub struct Opts {
     #[clap(subcommand)]
     pub cmd: Subcommand,
-    #[arg(
-        short,
-        long,
-        default_value = "false",
-        long_help = "Print debug information"
-    )]
-    pub debug: bool,
 }
 
 #[derive(Parser, Debug)]
@@ -26,4 +19,6 @@ pub enum Subcommand {
     Base64(Base64Opts),
     #[clap(name = "text", about = "Convert text to file")]
     Text(TextOpts),
+    #[command(subcommand, about = "HTTP server")]
+    Http(HttpSubCommand),
 }

@@ -1,7 +1,12 @@
+use std::path::{Path, PathBuf};
+
+use anyhow::Result;
+
 pub use b64::*;
 pub use cli::*;
 pub use csv::*;
 pub use gen_pass::*;
+pub use http::*;
 pub use text::*;
 pub use text_encrypt::*;
 
@@ -10,14 +15,24 @@ mod b64;
 mod cli;
 mod csv;
 mod gen_pass;
+mod http;
 mod text;
 mod text_encrypt;
 
-fn verify_file_exists(path: &str) -> Result<String, String> {
-    if path == "-" || std::path::Path::new(path).exists() {
+fn verify_file(path: &str) -> Result<String, &'static str> {
+    if path == "-" || Path::new(path).exists() {
         Ok(path.into())
     } else {
-        Err(format!("File not found: {}", path))
+        Err("File not found")
+    }
+}
+
+fn verify_path(path: &str) -> Result<PathBuf, &'static str> {
+    let p = Path::new(path);
+    if p.exists() && p.is_dir() {
+        Ok(path.into())
+    } else {
+        Err("Path not found")
     }
 }
 
@@ -26,9 +41,9 @@ mod tests {
     use super::*;
 
     #[test]
-    fn test_verify_file_exists() {
-        assert!(verify_file_exists("-").is_ok());
-        assert!(verify_file_exists("Cargo.toml").is_ok());
-        assert!(verify_file_exists("nonexistent").is_err());
+    fn test_verify_file() {
+        assert!(verify_file("-").is_ok());
+        assert!(verify_file("Cargo.toml").is_ok());
+        assert!(verify_file("nonexistent").is_err());
     }
 }

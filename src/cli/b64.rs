@@ -3,7 +3,7 @@ use colored::Colorize;
 
 use crate::encode;
 
-use super::verify_file_exists;
+use super::verify_file;
 
 #[derive(Parser, Debug)]
 pub struct Base64Opts {
@@ -30,7 +30,7 @@ pub enum Base64Subcommand {
 
 #[derive(Parser, Debug)]
 pub struct EncodeOpts {
-    #[arg(short, long, value_parser = verify_file_exists, default_value = "-")]
+    #[arg(short, long, value_parser = verify_file, default_value = "-")]
     pub input: String,
     #[arg(short, long, default_value = "standard", value_parser = parse_format)]
     pub format: Format,
@@ -47,7 +47,7 @@ impl EncodeOpts {
 
 #[derive(Parser, Debug)]
 pub struct DecodeOpts {
-    #[arg(short, long, value_parser = verify_file_exists, default_value = "-")]
+    #[arg(short, long, value_parser = verify_file, default_value = "-")]
     pub input: String,
     #[arg(short, long, default_value = "standard", value_parser = parse_format)]
     pub format: Format,
