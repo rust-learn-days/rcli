@@ -63,3 +63,30 @@ async fn file_handler(
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_file_handler_not_found() {
+        let state = Arc::new(HttpServerState {
+            path: PathBuf::from("."),
+        });
+        let path = Path("test.txt".to_string());
+        let (status, content) = file_handler(State(state), path).await;
+        assert_eq!(status, StatusCode::NOT_FOUND);
+        assert_eq!(content, "Not found file".to_string());
+    }
+
+    #[tokio::test]
+    async fn test_file_handler_found() {
+        let state = Arc::new(HttpServerState {
+            path: PathBuf::from("."),
+        });
+        let path = Path("Cargo.toml".to_string());
+        let (status, content) = file_handler(State(state), path).await;
+        assert_eq!(status, StatusCode::OK);
+        assert!(content.contains("[package]"));
+    }
+}
