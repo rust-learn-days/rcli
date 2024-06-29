@@ -1,5 +1,7 @@
 use super::verify_file_exists;
+use crate::csv2file;
 use clap::Parser;
+use colored::Colorize;
 use std::fmt;
 use std::str::FromStr;
 
@@ -51,5 +53,22 @@ impl FromStr for FileFormat {
 impl fmt::Display for FileFormat {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "{}", Into::<&str>::into(*self))
+    }
+}
+
+impl CsvOpts {
+    pub fn execute(self) -> anyhow::Result<()> {
+        println!("{} {}", "Convert CSV to JSON".blue(), "format: json".blue());
+        match csv2file(self) {
+            Ok(output) => {
+                println!("{} {}", "Output: ".blue(), output.blue());
+                println!("{}", "Success Convert CSV to JSON".blue());
+                Ok(())
+            }
+            Err(e) => {
+                eprintln!("{} {}", "Error: {}".red(), e);
+                Err(e)
+            }
+        }
     }
 }

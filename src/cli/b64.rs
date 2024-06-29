@@ -1,4 +1,7 @@
 use clap::Parser;
+use colored::Colorize;
+
+use crate::encode;
 
 use super::verify_file_exists;
 
@@ -6,6 +9,15 @@ use super::verify_file_exists;
 pub struct Base64Opts {
     #[clap(subcommand)]
     pub cmd: Base64Subcommand,
+}
+
+impl Base64Opts {
+    pub fn execute(self) -> anyhow::Result<()> {
+        match self.cmd {
+            Base64Subcommand::Encode(encode_opts) => encode_opts.execute(),
+            Base64Subcommand::Decode(decode_opts) => decode_opts.execute(),
+        }
+    }
 }
 
 #[derive(Parser, Debug)]
@@ -24,12 +36,30 @@ pub struct EncodeOpts {
     pub format: Format,
 }
 
+impl EncodeOpts {
+    pub fn execute(self) -> anyhow::Result<()> {
+        if let Err(e) = encode(&self.input, self.format) {
+            eprintln!("{} {}", "Error: ".red(), e);
+        }
+        Ok(())
+    }
+}
+
 #[derive(Parser, Debug)]
 pub struct DecodeOpts {
     #[arg(short, long, value_parser = verify_file_exists, default_value = "-")]
     pub input: String,
     #[arg(short, long, default_value = "standard", value_parser = parse_format)]
     pub format: Format,
+}
+
+impl DecodeOpts {
+    pub fn execute(self) -> anyhow::Result<()> {
+        if let Err(e) = crate::decode(&self.input, self.format) {
+            eprintln!("{} {}", "Error: ".red(), e);
+        }
+        Ok(())
+    }
 }
 
 #[derive(Debug, Clone, Copy)]
