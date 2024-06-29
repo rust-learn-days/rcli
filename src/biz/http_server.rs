@@ -9,6 +9,7 @@ use axum::routing::get;
 use axum::Router;
 use log::{info, warn};
 use tokio::net::TcpListener;
+use tower_http::services::ServeDir;
 
 #[derive(Debug)]
 struct HttpServerState {
@@ -19,11 +20,17 @@ pub async fn http_server(path: PathBuf, port: u16) -> Result<()> {
     let addr = SocketAddr::from(([0, 0, 0, 0], port));
     info!("Serving {} on http://{}", path.display(), addr);
 
-    let state = HttpServerState { path };
-
+    let state = HttpServerState { path: path.clone() };
+    let service = ServeDir::new(path)
+        .append_index_html_on_directories(true)
+        .precompressed_gzip()
+        .precompressed_br()
+        .precompressed_zstd()
+        .precompressed_deflate();
     // axum router
     let router = Router::new()
-        .route("/*path", get(file_handler))
+        .route("/fs/*path", get(file_handler))
+        .nest_service("/", service)
         .with_state(Arc::new(state));
 
     let listener = TcpListener::bind(addr).await?;

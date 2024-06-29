@@ -1,4 +1,9 @@
 ### GET request to example server
-GET http://localhost:8080/test.http
+GET http://localhost:8080/fs/test.http
 
 ###
+
+### GET request to example server
+GET http://localhost:8080/Cargo.toml
+Range: bytes=0-100
+Accept-Encoding: gzip
