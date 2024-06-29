@@ -8,5 +8,4 @@ pub use b64::*;
 pub use csv_convert::*;
 pub use gen_pass::*;
 pub use text::*;
-#[allow(unused_imports)]
 pub use text_chacha20::*;
