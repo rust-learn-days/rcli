@@ -4,7 +4,7 @@ use clap::Parser;
 use colored::Colorize;
 
 use crate::cli::text_encrypt::{DecryptOpts, EncryptOpts};
-use crate::{generate_key, process_from_input, EncryptKeyOpts};
+use crate::{generate_key, process_from_input, CmdExec, EncryptKeyOpts};
 
 use super::verify_file;
 
@@ -14,15 +14,15 @@ pub struct TextOpts {
     pub cmd: TextSubcommand,
 }
 
-impl TextOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for TextOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         match self.cmd {
-            TextSubcommand::GenerateKey(opts) => opts.execute(),
-            TextSubcommand::Sign(opts) => opts.execute(),
-            TextSubcommand::Verify(opts) => opts.execute(),
-            TextSubcommand::Encrypt(opts) => opts.execute(),
-            TextSubcommand::Decrypt(opts) => opts.execute(),
-            TextSubcommand::EncryptKey(opts) => opts.execute(),
+            TextSubcommand::GenerateKey(opts) => opts.execute().await,
+            TextSubcommand::Sign(opts) => opts.execute().await,
+            TextSubcommand::Verify(opts) => opts.execute().await,
+            TextSubcommand::Encrypt(opts) => opts.execute().await,
+            TextSubcommand::Decrypt(opts) => opts.execute().await,
+            TextSubcommand::EncryptKey(opts) => opts.execute().await,
         }
     }
 }
@@ -53,8 +53,8 @@ pub struct SignOpts {
     pub format: TextSignFormat,
 }
 
-impl SignOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for SignOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         let input: String = process_from_input(&self.input).unwrap();
         let key = process_from_input(&self.key).unwrap();
         match crate::sign(&mut input.as_bytes(), key.as_str(), self.format) {
@@ -82,8 +82,8 @@ pub struct VerifyOpts {
     pub signature: String,
 }
 
-impl VerifyOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for VerifyOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         let input: String = process_from_input(&self.input).unwrap();
         let key = process_from_input(&self.key).unwrap();
         match crate::verify(
@@ -112,8 +112,8 @@ pub struct GenerateKeyOpts {
     pub format: TextSignFormat,
 }
 
-impl GenerateKeyOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for GenerateKeyOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         match generate_key(self.format) {
             Ok(key) => {
                 println!("Generated Key: {}", String::from_utf8(key.clone()).unwrap());

@@ -6,6 +6,7 @@ use clap::Parser;
 
 use crate::{
     decrypt_message, encrypt_message, generate_encrypt_key, get_decrypt_key, process_from_input,
+    CmdExec,
 };
 
 use super::verify_file;
@@ -23,9 +24,8 @@ pub struct EncryptOpts {
     #[arg(long, default_value = "chacha20-poly1305", value_parser = parse_format)]
     pub format: TextEncryptFormat,
 }
-
-impl EncryptOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for EncryptOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         let key_bytes = process_from_input(&self.key)?;
         let base64 = BASE64_URL_SAFE_NO_PAD.decode(key_bytes)?;
         let key = get_decrypt_key(base64.as_slice());
@@ -57,8 +57,8 @@ pub struct DecryptOpts {
     pub print: bool,
 }
 
-impl DecryptOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for DecryptOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         let key_bytes = process_from_input(&self.key)?;
         let base64 = BASE64_URL_SAFE_NO_PAD.decode(key_bytes)?;
         let key = get_decrypt_key(base64.as_slice());
@@ -85,8 +85,8 @@ pub struct EncryptKeyOpts {
     pub format: TextEncryptFormat,
 }
 
-impl EncryptKeyOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for EncryptKeyOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         //generate_encrypt_key(&self.output, self.format)?;
         match self.format {
             TextEncryptFormat::ChaCha20Poly1305 => {

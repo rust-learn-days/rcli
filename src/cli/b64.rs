@@ -1,7 +1,7 @@
 use clap::Parser;
 use colored::Colorize;
 
-use crate::encode;
+use crate::{encode, CmdExec};
 
 use super::verify_file;
 
@@ -11,11 +11,11 @@ pub struct Base64Opts {
     pub cmd: Base64Subcommand,
 }
 
-impl Base64Opts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for Base64Opts {
+    async fn execute(self) -> anyhow::Result<()> {
         match self.cmd {
-            Base64Subcommand::Encode(encode_opts) => encode_opts.execute(),
-            Base64Subcommand::Decode(decode_opts) => decode_opts.execute(),
+            Base64Subcommand::Encode(encode_opts) => encode_opts.execute().await,
+            Base64Subcommand::Decode(decode_opts) => decode_opts.execute().await,
         }
     }
 }
@@ -36,8 +36,8 @@ pub struct EncodeOpts {
     pub format: Format,
 }
 
-impl EncodeOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for EncodeOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         if let Err(e) = encode(&self.input, self.format) {
             eprintln!("{} {}", "Error: ".red(), e);
         }
@@ -53,8 +53,8 @@ pub struct DecodeOpts {
     pub format: Format,
 }
 
-impl DecodeOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for DecodeOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         if let Err(e) = crate::decode(&self.input, self.format) {
             eprintln!("{} {}", "Error: ".red(), e);
         }

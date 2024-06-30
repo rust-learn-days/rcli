@@ -1,6 +1,6 @@
 use clap::Parser;
 
-use crate::{Base64Opts, CsvOpts, GenPassOpts, HttpSubCommand, TextOpts};
+use crate::{Base64Opts, CmdExec, CsvOpts, GenPassOpts, HttpSubCommand, TextOpts};
 
 #[derive(Parser, Debug)]
 #[command(name = "rcli", about, version, author, long_about = None)]
@@ -21,4 +21,16 @@ pub enum Subcommand {
     Text(TextOpts),
     #[command(subcommand, about = "HTTP server")]
     Http(HttpSubCommand),
+}
+
+impl Subcommand {
+    pub async fn execute(self) -> anyhow::Result<()> {
+        match self {
+            Subcommand::Csv(csv_opts) => csv_opts.execute().await,
+            Subcommand::GenPass(gen_opts) => gen_opts.execute().await,
+            Subcommand::Base64(base64_opts) => base64_opts.execute().await,
+            Subcommand::Text(text_opts) => text_opts.execute().await,
+            Subcommand::Http(http_opts) => http_opts.execute().await,
+        }
+    }
 }

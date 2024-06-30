@@ -2,7 +2,7 @@ use std::path::PathBuf;
 
 use clap::Parser;
 
-use crate::http_server;
+use crate::{http_server, CmdExec};
 
 use super::verify_path;
 
@@ -12,8 +12,8 @@ pub enum HttpSubCommand {
     Serve(HttpServeOpts),
 }
 
-impl HttpSubCommand {
-    pub async fn execute(&self) -> anyhow::Result<()> {
+impl CmdExec for HttpSubCommand {
+    async fn execute(self) -> anyhow::Result<()> {
         match self {
             HttpSubCommand::Serve(serve_opts) => serve_opts.execute().await,
         }
@@ -30,8 +30,8 @@ pub struct HttpServeOpts {
     pub dir: PathBuf,
 }
 
-impl HttpServeOpts {
-    pub async fn execute(&self) -> anyhow::Result<()> {
+impl CmdExec for HttpServeOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         http_server(self.dir.clone(), self.port).await
     }
 }

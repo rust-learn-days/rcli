@@ -1,3 +1,4 @@
+use crate::CmdExec;
 use clap::Parser;
 use colored::Colorize;
 
@@ -15,8 +16,8 @@ pub struct GenPassOpts {
     pub no_symbol: bool,
 }
 
-impl GenPassOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for GenPassOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         let pass = crate::gen_pass(
             self.length,
             !self.no_upper,

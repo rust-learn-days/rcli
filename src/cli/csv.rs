@@ -1,5 +1,5 @@
 use super::verify_file;
-use crate::csv2file;
+use crate::{csv2file, CmdExec};
 use clap::Parser;
 use colored::Colorize;
 use std::fmt;
@@ -56,8 +56,8 @@ impl fmt::Display for FileFormat {
     }
 }
 
-impl CsvOpts {
-    pub fn execute(self) -> anyhow::Result<()> {
+impl CmdExec for CsvOpts {
+    async fn execute(self) -> anyhow::Result<()> {
         println!("{} {}", "Convert CSV to JSON".blue(), "format: json".blue());
         match csv2file(self) {
             Ok(output) => {
