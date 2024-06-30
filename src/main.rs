@@ -1,5 +1,6 @@
 use clap::Parser;
 
+use rcli::CmdExec;
 use rcli::Opts;
 
 #[tokio::main]

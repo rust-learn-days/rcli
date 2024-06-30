@@ -1,23 +1,17 @@
 use std::path::PathBuf;
 
 use clap::Parser;
+use enum_dispatch::enum_dispatch;
 
 use crate::{http_server, CmdExec};
 
 use super::verify_path;
 
 #[derive(Debug, Parser)]
+#[enum_dispatch(CmdExec)]
 pub enum HttpSubCommand {
     #[command(about = "Serve a directory over HTTP")]
     Serve(HttpServeOpts),
-}
-
-impl CmdExec for HttpSubCommand {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self {
-            HttpSubCommand::Serve(serve_opts) => serve_opts.execute().await,
-        }
-    }
 }
 
 #[derive(Debug, Parser)]

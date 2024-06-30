@@ -1,26 +1,13 @@
 use clap::Parser;
 use colored::Colorize;
+use enum_dispatch::enum_dispatch;
 
 use crate::{encode, CmdExec};
 
 use super::verify_file;
 
 #[derive(Parser, Debug)]
-pub struct Base64Opts {
-    #[clap(subcommand)]
-    pub cmd: Base64Subcommand,
-}
-
-impl CmdExec for Base64Opts {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self.cmd {
-            Base64Subcommand::Encode(encode_opts) => encode_opts.execute().await,
-            Base64Subcommand::Decode(decode_opts) => decode_opts.execute().await,
-        }
-    }
-}
-
-#[derive(Parser, Debug)]
+#[enum_dispatch(CmdExec)]
 pub enum Base64Subcommand {
     #[clap(name = "encode", about = "Encode base64")]
     Encode(EncodeOpts),

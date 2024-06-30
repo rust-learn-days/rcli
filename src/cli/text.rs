@@ -2,6 +2,7 @@ use std::fs;
 
 use clap::Parser;
 use colored::Colorize;
+use enum_dispatch::enum_dispatch;
 
 use crate::cli::text_encrypt::{DecryptOpts, EncryptOpts};
 use crate::{generate_key, process_from_input, CmdExec, EncryptKeyOpts};
@@ -14,20 +15,8 @@ pub struct TextOpts {
     pub cmd: TextSubcommand,
 }
 
-impl CmdExec for TextOpts {
-    async fn execute(self) -> anyhow::Result<()> {
-        match self.cmd {
-            TextSubcommand::GenerateKey(opts) => opts.execute().await,
-            TextSubcommand::Sign(opts) => opts.execute().await,
-            TextSubcommand::Verify(opts) => opts.execute().await,
-            TextSubcommand::Encrypt(opts) => opts.execute().await,
-            TextSubcommand::Decrypt(opts) => opts.execute().await,
-            TextSubcommand::EncryptKey(opts) => opts.execute().await,
-        }
-    }
-}
-
 #[derive(Parser, Debug)]
+#[enum_dispatch(CmdExec)]
 pub enum TextSubcommand {
     #[clap(name = "gen-key", about = "Generate key")]
     GenerateKey(GenerateKeyOpts),
