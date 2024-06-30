@@ -1,7 +1,9 @@
 use clap::Parser;
 use enum_dispatch::enum_dispatch;
 
-use crate::{Base64Subcommand, CsvOpts, GenPassOpts, HttpSubCommand, TextSubcommand};
+use crate::{
+    Base64Subcommand, CsvOpts, GenPassOpts, HttpSubCommand, JwtSubCommand, TextSubcommand,
+};
 
 #[derive(Parser, Debug)]
 #[command(name = "rcli", about, version, author, long_about = None)]
@@ -23,4 +25,6 @@ pub enum Subcommand {
     Text(TextSubcommand),
     #[command(subcommand, about = "HTTP server")]
     Http(HttpSubCommand),
+    #[command(subcommand, about = "JWT")]
+    Jwt(JwtSubCommand),
 }

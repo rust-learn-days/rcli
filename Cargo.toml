@@ -28,3 +28,5 @@ axum = "0.7.5"
 tokio = { version = "1.38.0", features = ["rt", "rt-multi-thread", "macros"] }
 tower-http = {version = "0.5.2",features =  ["compression-full", "cors", "trace", "fs"]}
 enum_dispatch = "0.3.13"
+jsonwebtoken = "9.3.0"
+duration-str = "0.11.2"
